@@ -1,0 +1,8 @@
+spring:
+  config:
+    activate:
+      on-profile: request-actual
+
+host:
+  httpbin:
+    api: httpbin.org

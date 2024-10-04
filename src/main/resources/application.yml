@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: webtorest
+
+api:
+  httpbin-json:
+    url: http://${host.httpbin.api}
+  httpbin-xml:
+    url: http://${host.httpbin.api}
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        - com.example.webtorest.webclient.exception.CircuitRecordException
+        - com.example.webtorest.restclient.exception.CircuitRecordException

@@ -1,0 +1,11 @@
+spring:
+  config:
+    activate:
+      on-profile: test
+    import: |-
+      classpath:/application.yml,
+      classpath:/application-test-request-actual.yml
+
+host:
+  httpbin:
+    api: localhost:${wiremock.server.port}
