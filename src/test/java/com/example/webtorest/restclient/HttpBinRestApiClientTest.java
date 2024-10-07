@@ -4,6 +4,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.givenThat;
 import static com.github.tomakehurst.wiremock.client.WireMock.ok;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
+import static com.github.tomakehurst.wiremock.client.WireMock.okXml;
 import static com.github.tomakehurst.wiremock.client.WireMock.serverError;
 import static com.github.tomakehurst.wiremock.client.WireMock.serviceUnavailable;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -108,5 +109,53 @@ public class HttpBinRestApiClientTest {
 		// when-then
 		assertThatThrownBy(sut::get)
 			.isExactlyInstanceOf(CallNotPermittedException.class);
+	}
+
+	@Test
+	void successXml() {
+		// given
+		givenThat(
+			get("/xml")
+				.willReturn(
+					okXml(
+						"""
+							<?xml version='1.0' encoding='us-ascii'?>
+							 <!--  A SAMPLE set of slides  -->
+							 <slideshow\s
+							   title="Sample Slide Show"
+							   date="Date of publication"
+							   author="Yours Truly"
+							   >
+							   <!-- TITLE SLIDE -->
+							   <slide type="all">
+								 <title>Wake up to WonderWidgets!</title>
+							   </slide>
+							   <!-- OVERVIEW -->
+							   <slide type="all">
+								 <title>Overview</title>
+								 <item>
+								   Why\s
+								   <em>WonderWidgets</em>
+									are great
+								 </item>
+								 <item/>
+								 <item>
+								   Who\s
+								   <em>buys</em>
+									WonderWidgets
+								 </item>
+							   </slide>
+							 </slideshow>
+							"""
+					)
+				)
+		);
+
+		// when
+		var actual = sut.xml();
+
+		// then
+		then(actual.getTitle()).isEqualTo("Sample Slide Show");
+		then(actual.getSlides()).isNotEmpty();
 	}
 }

@@ -1,6 +1,7 @@
 package com.example.webtorest.webclient.config;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -46,6 +47,29 @@ public class WebClientConfig {
 	) {
 		return webClientBuilder.baseUrl(properties.getUrl())
 			.defaultHeaders(headers -> headers.setContentType(MediaType.APPLICATION_JSON))
+			.clientConnector(this.reactorClientHttpConnector(reactorResourceFactory, properties))
+			.build();
+	}
+
+	@Bean("httpBinXmlApiClientProperties")
+	@ConfigurationProperties("api.httpbin-xml")
+	ApiClientProperties httpBinXmlApiClientProperties() {
+		return new ApiClientProperties();
+	}
+
+	@Bean("httpBinXmlWebClient")
+	WebClient httpBinXmlWebClient(
+		ReactorResourceFactory reactorResourceFactory,
+		WebClient.Builder webClientBuilder,
+		@Qualifier("httpBinXmlApiClientProperties") ApiClientProperties properties
+	) {
+		return webClientBuilder.baseUrl(properties.getUrl())
+			.defaultHeaders(
+				headers -> {
+					headers.setContentType(MediaType.APPLICATION_XML);
+					headers.setAccept(List.of(MediaType.APPLICATION_XML));
+				}
+			)
 			.clientConnector(this.reactorClientHttpConnector(reactorResourceFactory, properties))
 			.build();
 	}

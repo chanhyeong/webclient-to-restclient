@@ -23,4 +23,12 @@ public class HttpBinRestApiClientRequestActualTest {
 
 		then(actual.url()).isEqualTo("http://httpbin.org/get");
 	}
+
+	@Test
+	void successXml() {
+		// when-then
+		var actual = sut.xml();
+
+		then(actual.getTitle()).isEqualTo("Sample Slide Show");
+	}
 }

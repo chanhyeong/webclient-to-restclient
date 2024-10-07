@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 import com.example.webtorest.common.HttpBinGetResponse;
+import com.example.webtorest.common.HttpBinXmlResponse;
 import com.example.webtorest.restclient.exception.CircuitRecordException;
 import com.example.webtorest.restclient.exception.RemoteApiServerException;
 
@@ -16,20 +17,23 @@ import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 @Component
 public class HttpBinRestApiClient {
 
-	private final RestClient restClient;
+	private final RestClient jsonRestClient;
+	private final RestClient xmlRestClient;
 	private final CircuitBreaker circuitBreaker;
 
 	public HttpBinRestApiClient(
-		@Qualifier("httpBinJsonRestClient") RestClient restClient,
+		@Qualifier("httpBinJsonRestClient") RestClient jsonRestClient,
+		@Qualifier("httpBinXmlRestClient") RestClient xmlRestClient,
 		CircuitBreakerRegistry circuitBreakerRegistry
 	) {
-		this.restClient = restClient;
+		this.jsonRestClient = jsonRestClient;
+		this.xmlRestClient = xmlRestClient;
 		this.circuitBreaker = circuitBreakerRegistry.circuitBreaker("httpbin-restclient");
 	}
 
 	public HttpBinGetResponse get() {
 		return circuitBreaker.executeSupplier(() ->
-			restClient.get()
+			jsonRestClient.get()
 				.uri("/get")
 				.retrieve()
 				.onStatus(
@@ -41,6 +45,23 @@ public class HttpBinRestApiClient {
 					RemoteApiServerException.of()
 				)
 				.body(HttpBinGetResponse.class)
+		);
+	}
+
+	public HttpBinXmlResponse xml() {
+		return circuitBreaker.executeSupplier(() ->
+			xmlRestClient.get()
+				.uri("/xml")
+				.retrieve()
+				.onStatus(
+					httpStatus -> httpStatus.value() > HttpStatus.INTERNAL_SERVER_ERROR.value(),
+					CircuitRecordException.of()
+				)
+				.onStatus(
+					HttpStatusCode::isError,
+					RemoteApiServerException.of()
+				)
+				.body(HttpBinXmlResponse.class)
 		);
 	}
 }

@@ -1,6 +1,7 @@
 package com.example.webtorest.restclient.config;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.ThreadFactory;
 
 import org.apache.hc.client5.http.classic.HttpClient;
@@ -23,6 +24,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.http.converter.xml.Jaxb2RootElementHttpMessageConverter;
+import org.springframework.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
 import org.springframework.web.client.RestClient;
 
 import com.example.webtorest.common.ApiClientProperties;
@@ -43,6 +46,28 @@ public class RestClientConfig {
 	) {
 		return restClientBuilder.baseUrl(properties.getUrl())
 			.defaultHeaders(headers -> headers.setContentType(MediaType.APPLICATION_JSON))
+			.requestFactory(requestFactory(properties))
+			.build();
+	}
+
+	@Bean("httpBinXmlRestClient")
+	RestClient httpBinXmlRestClient(
+		RestClient.Builder restClientBuilder,
+		@Qualifier("httpBinXmlApiClientProperties") ApiClientProperties properties
+	) {
+		return restClientBuilder.baseUrl(properties.getUrl())
+			.defaultHeaders(
+				headers -> {
+					headers.setContentType(MediaType.APPLICATION_XML);
+					headers.setAccept(List.of(MediaType.APPLICATION_XML));
+				}
+			)
+			.messageConverters(
+				it -> {
+					it.removeIf(converter -> converter instanceof MappingJackson2XmlHttpMessageConverter);
+					it.addLast(new Jaxb2RootElementHttpMessageConverter());
+				}
+			)
 			.requestFactory(requestFactory(properties))
 			.build();
 	}

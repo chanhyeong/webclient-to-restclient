@@ -23,4 +23,12 @@ public class HttpBinWebApiClientRequestActualTest {
 			.expectNextCount(1)
 			.verifyComplete();
 	}
+
+	@Test
+	void successXml() {
+		// when-then
+		StepVerifier.create(sut.xml())
+			.expectNextCount(1)
+			.verifyComplete();
+	}
 }
