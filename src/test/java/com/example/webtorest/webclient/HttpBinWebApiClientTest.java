@@ -164,4 +164,65 @@ public class HttpBinWebApiClientTest {
 			.expectNextCount(1)
 			.verifyComplete();
 	}
+
+	@Test
+	void successComposite() {
+		// given
+		givenThat(
+			get("/get")
+				.willReturn(
+					okJson(
+						"""
+							
+							{
+							  "origin": "211.249.71.108",
+							  "url": "https://httpbin.org/get"
+							}
+							"""
+					)
+				)
+		);
+
+		givenThat(
+			get("/xml")
+				.willReturn(
+					okXml(
+						"""
+							<?xml version='1.0' encoding='us-ascii'?>
+							 <!--  A SAMPLE set of slides  -->
+							 <slideshow\s
+							   title="Sample Slide Show"
+							   date="Date of publication"
+							   author="Yours Truly"
+							   >
+							   <!-- TITLE SLIDE -->
+							   <slide type="all">
+								 <title>Wake up to WonderWidgets!</title>
+							   </slide>
+							   <!-- OVERVIEW -->
+							   <slide type="all">
+								 <title>Overview</title>
+								 <item>
+								   Why\s
+								   <em>WonderWidgets</em>
+									are great
+								 </item>
+								 <item/>
+								 <item>
+								   Who\s
+								   <em>buys</em>
+									WonderWidgets
+								 </item>
+							   </slide>
+							 </slideshow>
+							"""
+					)
+				)
+		);
+
+		// when-then
+		StepVerifier.create(sut.xml())
+			.expectNextCount(1)
+			.verifyComplete();
+	}
 }

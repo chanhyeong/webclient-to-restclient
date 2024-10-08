@@ -31,4 +31,12 @@ public class HttpBinWebApiClientRequestActualTest {
 			.expectNextCount(1)
 			.verifyComplete();
 	}
+
+	@Test
+	void successComposite() {
+		// when-then
+		StepVerifier.create(sut.composite())
+			.expectNextCount(1)
+			.verifyComplete();
+	}
 }

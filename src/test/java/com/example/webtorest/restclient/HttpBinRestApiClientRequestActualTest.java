@@ -31,4 +31,14 @@ public class HttpBinRestApiClientRequestActualTest {
 
 		then(actual.getTitle()).isEqualTo("Sample Slide Show");
 	}
+
+	@Test
+	void successComposite() {
+		// when
+		var actual = sut.composite();
+
+		// then
+		then(actual.getUrl()).isEqualTo("http://httpbin.org/get");
+		then(actual.xmlTitle()).isEqualTo("Sample Slide Show");
+	}
 }

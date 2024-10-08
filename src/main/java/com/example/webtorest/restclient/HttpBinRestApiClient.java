@@ -6,10 +6,12 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
+import com.example.webtorest.common.GetAndXmlComposite;
 import com.example.webtorest.common.HttpBinGetResponse;
 import com.example.webtorest.common.HttpBinXmlResponse;
 import com.example.webtorest.restclient.exception.CircuitRecordException;
 import com.example.webtorest.restclient.exception.RemoteApiServerException;
+import com.example.webtorest.restclient.util.ConcurrentSupports;
 
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
@@ -62,6 +64,17 @@ public class HttpBinRestApiClient {
 					RemoteApiServerException.of()
 				)
 				.body(HttpBinXmlResponse.class)
+		);
+	}
+
+	public GetAndXmlComposite composite() {
+		return ConcurrentSupports.invokeAndMap(
+			this::get,
+			this::xml,
+			(get, xml) -> GetAndXmlComposite.builder()
+				.getUrl(get.url())
+				.xmlTitle(xml.getTitle())
+				.build()
 		);
 	}
 }

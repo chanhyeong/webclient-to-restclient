@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import com.example.webtorest.common.GetAndXmlComposite;
 import com.example.webtorest.common.HttpBinGetResponse;
 import com.example.webtorest.common.HttpBinXmlResponse;
 import com.example.webtorest.webclient.exception.CircuitRecordException;
@@ -56,5 +57,16 @@ public class HttpBinWebApiClient {
 			.bodyToMono(HttpBinXmlResponse.class)
 			.transformDeferred(CircuitBreakerOperator.of(circuitBreaker))
 			.onErrorMap(RemoteApiServerException::from);
+	}
+
+	public Mono<GetAndXmlComposite> composite() {
+		return Mono.zip(
+			get(),
+			xml(),
+			(get, xml) -> GetAndXmlComposite.builder()
+				.getUrl(get.url())
+				.xmlTitle(xml.getTitle())
+				.build()
+		);
 	}
 }
